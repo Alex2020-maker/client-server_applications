@@ -2,6 +2,9 @@
 
 import locale
 import subprocess
+import chardet
+from chardet import detect
+
 print("\nЗАДАНИЕ 1\n")
 
 """
@@ -127,15 +130,12 @@ for ping_now in ping_resurs:
 
     i = 0
     for line in ping_process.stdout:
-
-        if i < 10:
-            print(line)
-            line = line.decode('cp866').encode('utf-8')
-            print(line.decode('utf-8'))
-            i += 1
-        else:
-            print('#'*30)
+        ping_result = chardet.detect(line)
+        line = line.decode(ping_result['encoding']).encode('utf-8')
+        print(line.decode('utf-8'))
+        if i == 4:
             break
+        i += 1
 
 print("\nЗАДАНИЕ 6\n")
 
@@ -156,11 +156,14 @@ with open('test_file.txt', 'w+') as file:
         file.write(i + '\n')
     file.seek(0)
 
-file_coding = locale.getpreferredencoding()
+# Узнаем кодировку файла
+
+with open('test_file.txt', 'rb') as file:
+    result_cod = file.read()
+file_encoding = detect(result_cod)['encoding']
 
 # Чтение из файла
-with open('test_file.txt', 'r', encoding=file_coding) as file:
+with open('test_file.txt', 'r', encoding=file_encoding) as file:
     for i in file:
         print(i)
-
     file.seek(0)
